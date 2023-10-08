@@ -13,7 +13,7 @@ namespace Whisper
 {
 
 
-struct PacketMetaData;
+struct PktMetadata;
 class ParserWorkerThread;
 class KMeansLearner;
 class DeviceConfig;
@@ -98,7 +98,9 @@ private:
     // Core Id assigned by DPDK
     cpu_core_id_t m_core_id;
 
-    // Index of per-packet properties array copied form Analyzer
+    int received_num = 0;
+
+    // Index of per-packet properties array copied from Analyzer
     mutable size_t m_index = 0;
     // pause time for waitting analyzer (us)
     size_t pause_time = 50000;
@@ -107,12 +109,15 @@ private:
 	uint64_t analysis_pkt_num = 0;
 	uint64_t sum_analysis_pkt_num = 0;
 	uint64_t sum_analysis_pkt_len = 0;
-	double_t analysis_start_time, analysis_end_time;
+	double_t analysis_start_ts, analysis_end_ts;
 
     // The buffer for fetched per-packet properties that are copied form ParserWorkers
     #define MAX_META_PKT_ARR_SIZE (1 << 25)
     size_t meta_pkt_arr_size = 2000000;
-	shared_ptr<PacketMetaData[]> meta_pkt_arr;
+	shared_ptr<PktMetadata[]> meta_pkt_arr;
+
+    // address aggregate
+    unordered_map<uint32_t, vector<size_t> > mp;
 
 // #define DETAIL_TIME_ANALYZE
 // #define __DETAIL_TIME_ANALYZE
@@ -134,7 +139,7 @@ private:
     // The registed ParserWorkers
     vector<shared_ptr<ParserWorkerThread> > p_parser;
     // configuration
-    shared_ptr<AnalyzerConfigParam> p_analyzer_config;
+    shared_ptr<AnalyzerConfigParam> p_analyzer_conf;
     
     // Result signature
     typedef struct {
@@ -157,7 +162,7 @@ private:
     // Extract Frequency Domain Representation from per-packet properties
     void wave_analyze();
     // Linear Tranformation of per-packet properties
-    auto static inline weight_transform(const PacketMetaData & info) -> double_t;
+    auto static inline weight_transform(const PktMetadata & info) -> double_t;
 
 public:
 

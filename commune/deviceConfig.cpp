@@ -185,7 +185,7 @@ auto DeviceConfig::create_worker_threads(const assign_queue_t & queue_assign,
 
 #ifdef DISP_PARAM
 	if (verbose) {
-		analyzer_thread_vec[0]->p_analyzer_config->display_params();
+		analyzer_thread_vec[0]->p_analyzer_conf->display_params();
 	}
 #endif
 
@@ -228,7 +228,7 @@ void DeviceConfig::interrupt_callback(void* cookie)
 		const auto ref = _p_thread->get_overall_performance();
 		overall_analyzer_num += ref.first;
 		overall_analyzer_len += ref.second;
-		if (_p_thread->p_analyzer_config->speed_verbose) {
+		if (_p_thread->p_analyzer_conf->speed_verbose) {
 			__is_print_analyzer = true;
 		}
 	}
@@ -353,7 +353,8 @@ void DeviceConfig::do_init() {
 	}
 
 	// configure PcapPlusPlus Log Error Level
-	LoggerPP::getInstance().suppressErrors();
+	// LoggerPP::getInstance().suppressErrors();
+	Logger::getInstance().setAllModlesToLogLevel(Logger::LogLevel::Info);
 
 	// use 1 core for DPDK master and 17 cores for workers
 	vector<SystemCore> cores_to_use;
@@ -461,7 +462,7 @@ auto DeviceConfig::configure_via_json(const json & jin) -> bool {
 		}
 
 		if (jin.find("DPDK") == jin.end()) {
-			LOG_DEBUG("DPDK config enrty not found.");
+			WARN("DPDK config enrty not found.");
 			return false;
 		}
 		if (jin.find("Analyzer") != jin.end()) {

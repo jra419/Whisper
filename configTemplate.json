@@ -1,12 +1,12 @@
 {
     "Analyzer": {
-        "pause_time": 1000,
+        "pause_time": 100,
 
         "n_fft": 50,
         "mean_win_train": 50,
         "mean_win_test": 100,
         "num_train_sample": 50,
-        
+
         "mode_verbose": true,
         "center_verbose": false,
         "init_verbose": true,
@@ -20,41 +20,41 @@
         "result_buffer_size": 500000,
 
         "save_to_file": true,
-        "save_dir": "../result/Template/",
-        "save_file_prefix": "Template"
+        "save_dir": "../result/cic-ids-2018-ssh-bruteforce/",
+        "save_file_prefix": "cic-ids-2018-ssh-bruteforce-1024"
     },
     "Learner": {
         "val_K": 10,
-        "num_train_data": 10000,
+        "num_train_data": 900000,
         "verbose": true,
         "save_result": false,
-        "save_result_file": "",
-        "load_result": true,
-        "load_result_file": "../cache/20200101.json"
+        "save_result_file": "../cache/cic-ids-2018-ssh-bruteforce.json",
+        "load_result": false,
+        "load_result_file": "../cache/cic-ids-2018-ssh-bruteforce.json"
     },
     "DPDK" : {
-        "number_rx_queue": 16,
-        "number_tx_queue": 16,
+        "number_rx_queue": 1,
+        "number_tx_queue": 1,
 
         "verbose": true,
 
-        "core_use_for_analyze": 8,
-        "core_use_for_parser": 8,
-        "core_num": 17,
+        "core_use_for_analyze": 1,
+        "core_use_for_parser": 1,
+        "core_num": 3,
 
-        "dpdk_port_vec": [0, 1]
+        "dpdk_port_vec": [0]
     },
     "Parser": {
         "verbose_mode_options": [
             "init",
-            "tracing", 
-            "summarizing", 
+            "tracing",
+            "summarizing",
             "complete"
         ],
         "verbose_interval": 5.0,
         "verbose_mode": "complete",
-        
-        "max_receive_burts": 64,
+
+        "max_receive_burts": 10000,
         "meta_pkt_arr_size": 10000000
     }
 }

@@ -25,6 +25,8 @@
 #include <pcapplusplus/UdpLayer.h>
 #include <pcapplusplus/Logger.h>
 
+#include <pcapplusplus/PeregrineLayer.h>
+
 #include "../common.hpp"
 
 
@@ -65,21 +67,21 @@ struct DpdkConfig final {
 };
 
 
-struct PacketMetaData final {
+struct PktMetadata final {
 
 	uint32_t address;
 	uint16_t proto_code;
 	uint16_t pkt_length;
 	double time_stamp;
 
-	PacketMetaData() {};
+	PktMetadata() {};
 
-	explicit PacketMetaData(uint32_t a, uint16_t t, uint16_t l, double ts):
+	explicit PktMetadata(uint32_t a, uint16_t t, uint16_t l, double ts):
 			address(a), proto_code(t), pkt_length(l), time_stamp(ts) {}
 	
-	virtual ~PacketMetaData() {};
-    PacketMetaData & operator=(const PacketMetaData &) = default;
-    PacketMetaData(const PacketMetaData &) = default;
+	virtual ~PktMetadata() {};
+    PktMetadata & operator=(const PktMetadata &) = default;
+    PktMetadata(const PktMetadata &) = default;
 
 };
 

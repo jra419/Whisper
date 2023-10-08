@@ -17,8 +17,8 @@ bool ParserWorkerThread::run(uint32_t core_id)
 		return false;
 	}
 
-	meta_pkt_arr = shared_ptr<PacketMetaData[]>(new PacketMetaData[p_parser_config->meta_pkt_arr_size](), 
-													std::default_delete<PacketMetaData[]>());
+	meta_pkt_arr = shared_ptr<PktMetadata[]>(new PktMetadata[p_parser_config->meta_pkt_arr_size](), 
+													std::default_delete<PktMetadata[]>());
 
 	if (meta_pkt_arr == nullptr) {
 		FATAL_ERROR("Meta data array: bad allocation.");
@@ -41,41 +41,30 @@ bool ParserWorkerThread::run(uint32_t core_id)
     thread verbose_stat(&ParserWorkerThread::verbose_tracing_thread, this);
     verbose_stat.detach();
 
-	const auto _f_get_meta_pkt_info = [packet_arr, this] 
-						(const size_t i, const DpdkDevice* dev) -> shared_ptr<PacketMetaData> {
+	const auto _f_get_meta_pkt_info = [packet_arr, this]
+			(const size_t i, const DpdkDevice* dev) -> shared_ptr<PktMetadata> {
 		pcpp::Packet parsedPacket(packet_arr[i]);
 
-		// ignore the packets out of the scope of TCP/IPv4 protocol stack
 		if (parsedPacket.isPacketOfType(pcpp::IPv4)) {
 			pcpp::IPv4Layer * IPlay = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
+			uint8_t protocol = IPlay->getIPv4Header()->protocol;
 
-			uint32_t addr = IPlay->getSrcIPv4Address().toInt();
-			uint16_t length = ntohs(IPlay->getIPv4Header()->totalLength);
-			double_t ts = GET_DOUBLE_TS(packet_arr[i]->getPacketTimeStamp());
+			if (protocol == pcpp::PACKETPP_IPPROTO_PEREGRINE) {
+				pcpp::PeregrineLayer * peregrine =
+					parsedPacket.getLayerOfType<pcpp::PeregrineLayer>();
 
-			++ parsed_pkt_num[dev->getDeviceId()];
-			parsed_pkt_len[dev->getDeviceId()] += length;
-			
-			uint16_t type_code = type_identify_mp::TYPE_UNKNOWN;
-			if (parsedPacket.isPacketOfType(pcpp::TCP)) {
-				pcpp::TcpLayer* tcp_layer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
-				if (tcp_layer->getTcpHeader()->synFlag) {
-					type_code = type_identify_mp::TYPE_TCP_SYN;
-				} else if (tcp_layer->getTcpHeader()->finFlag) {
-					type_code = type_identify_mp::TYPE_TCP_FIN;
-				} else if (tcp_layer->getTcpHeader()->rstFlag) {
-					type_code = type_identify_mp::TYPE_TCP_RST;
-				} else {
-					type_code = type_identify_mp::TYPE_TCP;
-				}
-			} else if (IPlay->getNextLayer()->getProtocol() == pcpp::UDP) {
-				type_code = type_identify_mp::TYPE_UDP;
+				uint32_t ip_src = peregrine->getIpSrcAddr().toInt();
+				uint8_t proto = peregrine->getIpProto();
+				uint32_t length = ntohl(peregrine->getLength());
+				double ts = be64toh(peregrine->getTimestamp());
+
+				++ parsed_pkt_num[dev->getDeviceId()];
+				parsed_pkt_len[dev->getDeviceId()] += length;
+
+				return make_shared<PktMetadata>(ip_src, proto, length, ts);
 			} else {
-				type_code = type_identify_mp::TYPE_UNKNOWN;
+				return nullptr;
 			}
-			
-			return make_shared<PacketMetaData>(addr, type_code, length, ts);
-			
 		} else {
 			return nullptr;
 		}
@@ -116,7 +105,7 @@ bool ParserWorkerThread::run(uint32_t core_id)
 					if (meta_index == p_parser_config->meta_pkt_arr_size) {
 						WARNF("Parser on core # %2d: parse queue reach max.", (int) this->getCoreId());
 						// clear the meta data buffer, just for testing
-											acquire_semaphore();
+						acquire_semaphore();
 						acquire_semaphore();
 						meta_index = 0;
 						release_semaphore();

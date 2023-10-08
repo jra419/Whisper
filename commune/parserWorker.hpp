@@ -117,7 +117,7 @@ private:
 public:
 
 	// Collect the per-packets metadata
-	shared_ptr<PacketMetaData[]> meta_pkt_arr;
+	shared_ptr<PktMetadata[]> meta_pkt_arr;
 
 	ParserWorkerThread(const shared_ptr<DpdkConfig> p_d, const json & j_p): 
 					p_dpdk_config(p_d), m_core_id(p_d != nullptr ? p_d->core_id : MAX_NUM_OF_CORES + 1) {
