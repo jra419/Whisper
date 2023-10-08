@@ -1,0 +1,12 @@
+# Pcap file path.
+trace: /home/jra/datasets/cic-ids-2018/ssh-bruteforce/ssh-bruteforce.pcap
+# Trace labels path.
+labels: /home/jra/datasets/cic-ids-2018/ssh-bruteforce/ssh-bruteforce-labels.csv
+# Current trace attack name.
+attack: ssh-bruteforce
+# Execution phase sampling rate.
+sampling: 2048
+
+train_size: 1000000
+
+dst_mac: 52:54:00:73:df:c5

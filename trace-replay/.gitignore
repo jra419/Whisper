@@ -1,0 +1,18 @@
+# Specify filepatterns you want git to ignore.
+*.pyc
+*.pcap
+plugins/KitNET/models
+eval
+runs/
+*.patch
+*.tgz
+*.log
+*.report
+build
+zlog-cfg-cur
+*.log
+autogen
+__pycache__
+env
+*.tsv
+cache/**/*.txt
