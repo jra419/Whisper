@@ -31,7 +31,28 @@ class FCWhisper:
         if not os.path.isfile(file_path + '.csv'):
             self.parse_pcap(self.file_path)
 
-        self.df_csv = pd.read_csv(file_path + '.csv')
+        self.df_csv = pd.read_csv(file_path + '.csv',
+                                  dtype={"frame.time_epoch": float,
+                                         "frame.len": float,
+                                         "eth.src": 'str',
+                                         "eth.dst": 'str',
+                                         "ip.src": 'str',
+                                         "ip.dst": 'str',
+                                         "ip.len": float,
+                                         "ip.proto": float,
+                                         "tcp.srcport": float,
+                                         "tcp.dstport": float,
+                                         "udp.srcport": float,
+                                         "udp.dstport": float,
+                                         "icmp.type": float,
+                                         "icmp.code": float,
+                                         "arp.opcode": float,
+                                         "arp.src.hw_mac": 'str',
+                                         "arp.src.proto_ipv4": 'str',
+                                         "arp.dst.hw_mac": 'str',
+                                         "arp.dst.proto_ipv4": 'str',
+                                         "ipv6.src": 'str',
+                                         "ipv6.dst": 'str'})
 
     def trace_size(self):
         return len(self.df_csv)
